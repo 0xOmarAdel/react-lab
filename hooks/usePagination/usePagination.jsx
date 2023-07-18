@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import useDidMountEffect from "./useEffectExceptFirstRender";
 
 /*
 * data [Array][Required] => The original data array that the pagination will manipulate
@@ -89,10 +88,10 @@ const usePagination = (data, elementsPerPage, changeURL, maxSiblings, hideArrows
   ? let me know if you can fix this for me UwU
   */
   useEffect(() => {
-    if (isNaN(location.pathname.split('/').pop()) || currentPage > pagesNumber || currentPage <= 0) {
+    if (changeURL && (isNaN(location.pathname.split('/').pop()) || currentPage > pagesNumber || currentPage <= 0)) {
       pageChangeFunction(1)
     }
-  }, [currentPage, location.pathname, pageChangeFunction, pagesNumber])
+  }, [changeURL, currentPage, location.pathname, pageChangeFunction, pagesNumber])
   
   /*
   ! This useEffect will not run during the first render

@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 /*
 * data [Array][Required] => The original data array that the pagination will manipulate
 * elementsPerPage [Number][Required] => Come on man don't be stupid I have faith in you
-* changeURL [Bool] => Whether the pagination should manipulate the URL of not
+* changeURL [Bool] => Whether the pagination should manipulate the URL or not
 * maxSiblings [Number] => The max number of pages that will be visible on both sides of the active current page
 * hideArrows [Bool] => Whether to hide the prev and next buttons if the current page is the first page or the last page respectively
 * containerClass [String] => Classes to be added to the pagination div container

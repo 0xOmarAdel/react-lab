@@ -1,32 +1,48 @@
-import { useCallback, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 
-const useFilter = (array, filterFunction, urlSearchParamName, useSearchParamValue) => {
+const useFilter = (array, filterFunctions) => {
+  const [filteredArray, setFilteredArray] = useState(array);
+
   const navigate = useNavigate();
   const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
+  const [searchParams] = useSearchParams();
 
-  const [active, setActive] = useState(searchParams.get(urlSearchParamName) ? true : false);
-  const [filteredArray, setFilteredArray] = useState(searchParams.get(urlSearchParamName) ? filterFunction(array) : array);
-
-  const toggleFilter = useCallback(
-    () => {
-      const searchParams = new URLSearchParams(location.search);
-      if (active) {
-        setFilteredArray(array);
-        searchParams.delete(urlSearchParamName);
+  useEffect(() => {
+    let newFilteredArray = array;
+    for (const element of filterFunctions) {
+      if (searchParams.get(element.urlSearchParam)) {
+        newFilteredArray = newFilteredArray.filter(element.filterFunction);
       } else {
-        setFilteredArray(filterFunction(array));
-        searchParams.set(urlSearchParamName, useSearchParamValue);
+        searchParams.set(element.urlSearchParam, element.urlSearchDefaultValue);
+        newFilteredArray = newFilteredArray.filter(element.resetFunction);
       }
+    }
+    setFilteredArray(newFilteredArray)
+    navigate(`${location.pathname}?${searchParams.toString()}`);
+  }, []);
 
-      navigate(`${location.pathname}?${searchParams.toString()}`);
-      setActive(prevState => !prevState);
-    },
-    [location.search, location.pathname, active, navigate, array, urlSearchParamName, filterFunction, useSearchParamValue]
-  );
+  const applyFilter = () => {
+    let newFilteredArray = array;
+    for (const element of filterFunctions) {
+      searchParams.set(element.urlSearchParam, element.urlSearchValue);
+      newFilteredArray = newFilteredArray.filter(element.filterFunction);
+    }
+    setFilteredArray(newFilteredArray);
+    navigate(`${location.pathname}?${searchParams.toString()}`);
+  };
 
-  return [toggleFilter, filteredArray, active];
+  const resetFilter = () => {
+    let newFilteredArray = array;
+    for (const element of filterFunctions) {
+      searchParams.set(element.urlSearchParam, element.urlSearchDefaultValue);
+      newFilteredArray = newFilteredArray.filter(element.resetFunction);
+    }
+    setFilteredArray(newFilteredArray);
+    navigate(`${location.pathname}?${searchParams.toString()}`);
+  };
+
+  return [filteredArray, applyFilter, resetFilter];
 };
 
 export default useFilter;

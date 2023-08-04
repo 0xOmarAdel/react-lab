@@ -4,6 +4,8 @@ import { onSnapshot, collection } from "firebase/firestore";
 
 export const useCollection = (c) => {
   const [documents, setDocuments] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -17,6 +19,7 @@ export const useCollection = (c) => {
           results.push({ ...doc.data(), id: doc.id });
         });
         setDocuments(results);
+        setIsLoading(false);
         setError(null);
       },
       (error) => {
@@ -27,5 +30,5 @@ export const useCollection = (c) => {
     return () => unsub();
   }, [c]);
 
-  return { documents, error };
+  return { documents, error, isLoading };
 };

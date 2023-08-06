@@ -42,7 +42,7 @@ import {db} from '../firebase';
 
         let result = [];
 
-        const querySnapshot = await getDocs(filteredQueryConstraints ? query(queryCollection, ...filteredQueryConstraintsArray) : queryCollection);
+        const querySnapshot = await getDocs(filteredQueryConstraintsArray ? query(queryCollection, ...filteredQueryConstraintsArray) : queryCollection);
 
         querySnapshot.forEach((doc) => {
           result.push({ ...doc.data(), id: doc.id });

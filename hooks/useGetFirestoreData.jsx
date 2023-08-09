@@ -25,8 +25,8 @@ const useGetFirestoreData = (
   const whereStatementRef = useRef(whereStatement);
 
   const fetchData = useCallback(async () => {
+    setIsLoading(true);
     try {
-      setIsLoading(true);
       if (documentId) {
         onSnapshot(doc(db, c, documentId), 
           (docSnap) => {
@@ -35,9 +35,11 @@ const useGetFirestoreData = (
             } else {
               setError('Document does not exist');
             }
+            setIsLoading(false);
           },
           (error) => {
             setError(error)
+            setIsLoading(false);
           }
         );
       } else {
@@ -85,13 +87,14 @@ const useGetFirestoreData = (
               result.push({ ...doc.data(), id: doc.id });
             });
             setData(result);
+            setIsLoading(false);
           },
           (error) => {
             setError(error)
+            setIsLoading(false);
           }
         );
       }
-      setIsLoading(false);
     } catch (error) {
       setError(error);
     }

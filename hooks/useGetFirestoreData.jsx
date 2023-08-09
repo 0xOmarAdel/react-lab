@@ -30,21 +30,18 @@ const useGetFirestoreData = (
     try {
       setIsLoading(true);
       if (documentId) {
-        const docRef = doc(db, c, documentId);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          onSnapshot(
-            docRef,
-            (doc) => {
-              setData({ ...doc.data(), documentId });
-            },
-            (error) => {
-              setError(error);
+        onSnapshot(doc(db, c, documentId), 
+          (docSnap) => {
+            if (docSnap.exists()) {
+              setData({ ...docSnap.data(), documentId });
+            } else {
+              setError('Document does not exist');
             }
-          );
-        } else {
-          setError('Document does not exist');
-        }
+          },
+          (error) => {
+            setError(error)
+          }
+        );
       } else {
         let queryCollection = collection(db, c);
 
@@ -79,17 +76,22 @@ const useGetFirestoreData = (
 
         let result = [];
 
-        const querySnapshot = await getDocs(
-          filteredQueryConstraintsArray
-            ? query(queryCollection, ...filteredQueryConstraintsArray)
-            : queryCollection
+        const q = filteredQueryConstraintsArray ?
+          query(queryCollection, ...filteredQueryConstraintsArray)
+        :
+          queryCollection
+
+        onSnapshot(q,
+          (querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+              result.push({ ...doc.data(), id: doc.id });
+            });
+            setData(result);
+          },
+          (error) => {
+            setError(error)
+          }
         );
-
-        querySnapshot.forEach((doc) => {
-          result.push({ ...doc.data(), id: doc.id });
-        });
-
-        setData(result);
       }
       setIsLoading(false);
     } catch (error) {

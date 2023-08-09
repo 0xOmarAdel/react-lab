@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   doc,
   collection,
@@ -22,7 +22,9 @@ const useGetFirestoreData = (
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const whereStatementRef = useRef(whereStatement);
+  const [whereStatementProperty, setWhereStatementProperty] = useState(whereStatement?.lhs)
+  const [whereStatementOperator, setWhereStatementOperator] = useState(whereStatement?.op)
+  const [whereStatementValue, setWhereStatementValue] = useState(whereStatement?.rhs)
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -46,16 +48,8 @@ const useGetFirestoreData = (
         let queryCollection = collection(db, c);
 
         let queryWhere;
-        if (whereStatementRef.current) {
-          queryWhere =
-            whereStatementRef.current?.lhs &&
-            whereStatementRef.current?.op &&
-            whereStatementRef.current?.rhs &&
-            where(
-              whereStatementRef.current.lhs,
-              whereStatementRef.current.op,
-              whereStatementRef.current.rhs
-            );
+        if (whereStatementProperty && whereStatementOperator && whereStatementValue) {
+          queryWhere = where(whereStatementProperty, whereStatementOperator, whereStatementValue);
         }
 
         let queryOrderBy = orderBy_ && orderBy(orderBy_, orderType || "asc");
@@ -98,14 +92,16 @@ const useGetFirestoreData = (
     } catch (error) {
       setError(error);
     }
-  }, [c, documentId, whereStatementRef.current?.lhs, whereStatementRef.current?.op, whereStatementRef.current?.rhs, orderBy_, orderType, limit_]);
+  }, [c, documentId, whereStatementProperty, whereStatementOperator, whereStatementValue, orderBy_, orderType, limit_]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
   useEffect(() => {
-    whereStatementRef.current = whereStatement;
+    setWhereStatementProperty(whereStatement?.lhs);
+    setWhereStatementOperator(whereStatement?.op);
+    setWhereStatementValue(whereStatement?.rhs);
   }, [whereStatement]);
 
   return { data, isLoading, error };

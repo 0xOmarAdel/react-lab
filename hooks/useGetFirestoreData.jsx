@@ -1,14 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   doc,
-  getDocs,
   collection,
   where,
   query,
   limit,
   orderBy,
   onSnapshot,
-  getDoc,
 } from "firebase/firestore";
 import { db } from "../firebase";
 

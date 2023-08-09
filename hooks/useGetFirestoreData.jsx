@@ -36,17 +36,14 @@ const useGetFirestoreData = (
           onSnapshot(
             docRef,
             (doc) => {
-              if (doc.exists()) {
-                setData({ ...doc.data(), documentId });
-                setError(null);
-              } else {
-                console.log("Document does not exist");
-              }
+              setData({ ...doc.data(), documentId });
             },
             (error) => {
-              console.error("Error fetching document:", error);
+              setError(error);
             }
           );
+        } else {
+          setError('Document does not exist');
         }
       } else {
         let queryCollection = collection(db, c);
@@ -98,7 +95,7 @@ const useGetFirestoreData = (
     } catch (error) {
       setError(error);
     }
-  }, [c, documentId, limit_, orderBy_, orderType]);
+  }, [c, documentId, whereStatementRef.current?.lhs, whereStatementRef.current?.op, whereStatementRef.current?.rhs, orderBy_, orderType, limit_]);
 
   useEffect(() => {
     fetchData();
